@@ -1,4 +1,4 @@
-import { AuthHttp, AUTH_PROVIDERS, provideAuth, AuthConfig } from 'angular2-jwt/angular2-jwt';
+import { AuthHttp, AUTH_PROVIDERS, provideAuth, AuthConfig, AuthModule } from 'angular2-jwt';
 import { OrderService } from './services/order.service';
 import { MockBackend } from '@angular/http/testing';
 import { fakeBackendProvider } from './helpers/fake-backend';
@@ -16,6 +16,15 @@ import { SignupComponent } from './signup/signup.component';
 import { AdminComponent } from './admin/admin.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { NoAccessComponent } from './no-access/no-access.component';
+import { AuthGuard } from 'app/services/auth-guard.service';
+import { AdminAuthGuard } from 'app/services/admin-auth-guard.service';
+
+// export function getAuthHttp(http) {
+//   return new AuthHttp(new AuthConfig({
+//     tokenName: 'token'
+//   }), http);
+// }
+
 
 @NgModule({
   declarations: [
@@ -25,7 +34,7 @@ import { NoAccessComponent } from './no-access/no-access.component';
     AdminComponent,
     HomeComponent,
     NotFoundComponent,
-    NoAccessComponent
+    NoAccessComponent,
   ],
   imports: [
     BrowserModule,
@@ -33,15 +42,23 @@ import { NoAccessComponent } from './no-access/no-access.component';
     HttpModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
-      { path: 'admin', component: AdminComponent },
+      { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminAuthGuard] },
       { path: 'login', component: LoginComponent },
       { path: 'no-access', component: NoAccessComponent }
     ])
   ],
   providers: [
+    AUTH_PROVIDERS,
+    // AuthHttp,
+    // {
+    //   provide: AuthHttp,
+    //   useFactory: getAuthHttp,
+    //   deps: [Http]
+    // },
     OrderService,
-
     AuthService,
+    AuthGuard,
+    AdminAuthGuard,
 
     // For creating a mock back-end. You don't need these in a real app. 
     fakeBackendProvider,
